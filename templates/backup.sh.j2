@@ -1,0 +1,18 @@
+#!/bin/bash
+
+echo "Activating Google Cloud Service Account"
+KEY_FILE=/opt/couchdb-google-storage-backup/credentials.json
+gcloud auth activate-service-account --key-file $KEY_FILE
+
+COUCHDB_DATA_DIR=/var/lib/couchdb
+cd $COUCHDB_DATA_DIR
+ARCHIVE=/tmp/couchdb-$(hostname -f)-$(date +"%Y-%m-%d-%H-%M-%S").tar.xz
+
+echo "Creating CouchDB Data Archive: $ARCHIVE"
+tar cfJ $ARCHIVE .
+
+gsutil cp $ARCHIVE {{ couchdb_google_storage_backup_bucket_name }}
+
+echo "Removing CouchDB Data Archive $ARCHIVE"
+rm $ARCHIVE
+

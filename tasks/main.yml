@@ -1,0 +1,54 @@
+---
+- name: Install Google Cloud SDK Repo
+  yum_repository:
+    name: Google Cloud SDK
+    description: Google Cloud SDK
+    baseurl: https://packages.cloud.google.com/yum/repos/cloud-sdk-el7-x86_64
+    gpgkey: "https://packages.cloud.google.com/yum/doc/yum-key.gpg\nhttps://packages.cloud.google.com/yum/doc/rpm-package-key.gpg"
+    gpgcheck: yes
+
+- name: Install Google Cloud SDK
+  yum:
+    name: google-cloud-sdk
+    state: latest
+
+- name: Create Script Directory
+  file:
+    path: /opt/couchdb-google-storage-backup
+    state: directory
+    owner: couchdb
+    group: couchdb
+
+- name: Install CouchDB Google Storage Backup Script
+  template:
+    src: backup.sh.j2
+    dest: /opt/couchdb-google-storage-backup/backup.sh
+    owner: couchdb
+    group: couchdb
+    mode: 0744
+
+- name: Install Google Cloud Service Credentials
+  template:
+    src: credentials.json.j2
+    dest: /opt/couchdb-google-storage-backup/credentials.json
+    owner: couchdb
+    group: couchdb
+    mode: 0600
+
+- name: Create CouchDB Google Storage Backup Service
+  copy:
+    src: couchdb-google-storage-backup.service
+    dest: /lib/systemd/system/couchdb-google-storage-backup.service
+
+- name: Create CouchDB Google Storage Backup Timer
+  copy:
+    src: couchdb-google-storage-backup.timer
+    dest: /lib/systemd/system/couchdb-google-storage-backup.timer
+
+- name: Start and Enable CouchDB Google Storage Backup Timer
+  service:
+    name: couchdb-google-storage-backup.timer
+    state: started
+    daemon_reload: yes
+    enabled: yes
+

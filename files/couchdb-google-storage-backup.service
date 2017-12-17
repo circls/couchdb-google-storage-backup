@@ -1,0 +1,12 @@
+[Unit]
+Description=CouchDB Google Storage Backup
+
+[Service]
+User=couchdb
+Group=couchdb
+ExecStart=/opt/couchdb-google-storage-backup/backup.sh
+Type=oneshot
+
+[Install]
+WantedBy=couchdb-google-storage-backup.timer
+
